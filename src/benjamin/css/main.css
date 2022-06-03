@@ -1,0 +1,115 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    background: #17161e;
+    color: #faf7f7;
+    margin: 20px;
+}
+
+:root {
+    font-size: 29px
+}
+
+@layer components {
+    .btn {
+        @apply bg-amber-50 font-bold px-3 py-0.5 rounded text-center text-black;
+    }
+}
+
+#--re-frame-10x-- {
+    font-size:  14px;
+}
+
+
+#best-anim {
+
+}
+
+.ball {
+  border-radius: 25px;
+  width: 50px;
+  height: 50px;
+  background: #c00;
+  position: relative;
+  top: 0;
+  left: 0;
+  transition: transform 1s;
+}
+
+.ballwrap {
+    /* animation: y-axis 1s infinite cubic-bezier(.05,1.03,0-,1.64): */
+    animation: transform 1s;
+    position: absolute;
+}
+
+
+.face {
+  width: 100px;
+  height: 100px;
+  position: absolute;
+
+  transition: transform 0.5s;
+  transition-timing-function: ease-in-out;
+  background: yellow;
+
+  /* visibility: hidden; */
+}
+
+/* .faceContainer { */
+/*   position: absolute; */
+/*   top: 50%; */
+/*   left: 50%; */
+/* } */
+
+.faceRight {
+  /* top: 200px; */
+  /* left: 600px; */
+  top: 800px;
+  left: 150px;
+}
+
+
+@keyframes slideInRight {
+  from {
+    transform: translate3d(100%, 0, 0);
+    visibility: visible;
+  }
+
+  to {
+    transform: translate3d(10, 10, 0);
+  }
+}
+
+.slideInRight {
+  animation-name: slideInRight;
+}
+
+
+
+@keyframes shake {
+  from,
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translate3d(-10px, 0, 0);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translate3d(10px, 0, 0);
+  }
+}
+
+.shake {
+  animation-name: shake;
+}
