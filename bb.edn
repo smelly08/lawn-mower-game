@@ -1,6 +1,6 @@
 {:tasks {:init (def
                  url
-                 "https://benjamin-asdf.github.io/lawn-mower-game")
+                 "https://benjamin-asdf.github.io/lawn-mower-game/")
          dev-shadow (shell "npm" "run" "dev")
          dev-tailwind (shell "npm" "run" "twdev")
          clean (shell "npm" "run" "clean")
@@ -27,7 +27,7 @@
                         "git"
                         "push"
                         "--force"
-                        "git@github.com:benjamin-asdf/weddingnext.git"
+                        "git@github.com:benjamin-asdf/lawn-mower-game.git"
                         "master:gh-pages")}
          build-deploy {:depends [build deploy]}
          browse-qr-code (shell
