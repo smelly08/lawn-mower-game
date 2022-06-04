@@ -15,3 +15,4 @@ public/css/*.map
 public/css/main.css
 /public/assets/*.png
 /.cpcache/
+/.nrepl-port
