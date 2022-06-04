@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "shadow-cljs watch app --config-merge config/dev.edn",
+    "dev": "shadow-cljs watch app --config-merge config/dev.edn --aliases dev",
     "release": "shadow-cljs release app --config-merge config/prod.edn",
     "twdev": "npx tailwindcss -i ./src/css/main.css -o ./public/css/main.css --watch",
     "twprod": "npx tailwindcss -i ./src/css/main.css -o ./public/css/main.css --minify",

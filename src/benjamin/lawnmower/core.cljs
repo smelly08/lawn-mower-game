@@ -9,9 +9,7 @@
 
 (def lawn-dimensions [3 3])
 
-(def mower-link
-  ;; "https://imgur.com/a/7CuJID5"
-  "https://i.imgur.com/4SfnQ1I.jpeg")
+(def mower-link "https://i.imgurcom/4SfnQ1I.jpeg")
 
 (defn
   visit-pieces
@@ -48,7 +46,8 @@
 
 (defn player-ui []
   [:img
-   {:src mower-link :alt "foo"
+   {:src "/assets/4SfnQ1I.png"
+    :alt "foo"
     :style
     {:height 100 :width 100
      ;; :clip "rect(0,100,100,100)"
@@ -163,7 +162,6 @@
      (let [max-y (dec (count (first lawn)))
            max-x (dec (count lawn))
            [player-x player-y] player]
-       (prn "wrap: " player)
        (assoc
         db
         :game/player
