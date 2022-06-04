@@ -8,6 +8,7 @@
     (:import [goog.events KeyHandler]))
 
 (def lawn-dimensions [3 3])
+(def lawn-px 50)
 
 (defn
   visit-pieces
@@ -48,7 +49,7 @@
     :alt "../4SfnQ1I.png"
     :key pos
     :style
-    {:height 50 :width 50}}])
+    {:height lawn-px :width lawn-px}}])
 
 (defn
   piece-of-lawn
@@ -59,8 +60,8 @@
       (player-ui pos)
       [:div
        {:key pos
-        :style {:height 100
-                :width 100
+        :style {:height lawn-px
+                :width lawn-px
                 :background (if
                                 visited?
                                 "yellowgreen"
@@ -107,8 +108,8 @@
       {:style
        {:display :grid
         :width 600
-        :grid-template-rows "repeat(3, 50px)"
-        :grid-template-columns "repeat(3, 50px)"
+        :grid-template-rows (str "repeat(3, " lawn-px "px)")
+        :grid-template-columns (str "repeat(3, " lawn-px "px)")
         :grid-auto-flow :column}}
       (lawn-grid lawn player)]]))
 
