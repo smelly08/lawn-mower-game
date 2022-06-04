@@ -9,40 +9,67 @@
 
 (def lawn-dimensions [3 3])
 
+(def mower-link
+  ;; "https://imgur.com/a/7CuJID5"
+  "https://i.imgur.com/4SfnQ1I.jpeg")
+
+(defn
+  visit-pieces
+  [{:game/keys [player] :as db}]
+  (prn "visit-pieces" player)
+  (let [[y x] player]
+    (update-in
+     db
+     [:game/lawn y x :lawn-piece/visited?]
+     (constantly true))))
+
 (defn make-lawn
-  [[x y]]
+  [[y x]]
   (into
    []
    (for
-       [x (range x)]
+       [y (range y)]
        (into
         []
         (for
-            [y (range y)]
-            {:lawn-piece/pos [x y]
+            [x (range x)]
+            {:lawn-piece/pos [y x]
              :lawn-piece/visited? false})))))
 
 (def init-db
-  {:game/lawn (make-lawn lawn-dimensions)
-   :game/player [0 0]})
+  (visit-pieces
+   {:game/lawn (make-lawn lawn-dimensions)
+    :game/player [0 0]}))
 
 (rf/reg-event-db
   :initialize-db
   (fn [_ _]
     init-db))
 
-(defn piece-of-lawn
-  [{:lawn-piece/keys [pos visited?]} player]
-  [:div
-   {:key pos
+(defn player-ui []
+  [:img
+   {:src mower-link :alt "foo"
     :style
-    {:height 100
-     :width 100
-     :background
-     (if (= pos player)
-       "red"
-       (if visited?
-         "yellowgreen" "green"))}}])
+    {:height 100 :width 100
+     ;; :clip "rect(0,100,100,100)"
+     :overflow "hidden"}}])
+
+(defn
+  piece-of-lawn
+  [{:lawn-piece/keys [pos visited?]}
+   player]
+  (if
+      (= pos player)
+      (player-ui)
+      [:div
+       {:key pos
+        :style {:height 100
+                :width 100
+                :background (if
+                                visited?
+                                "yellowgreen"
+                                "green")}}]))
+
 
 (defn lawn-grid [lawn player]
   (doall
@@ -83,6 +110,7 @@
                 (-> KeyHandler .-EventType .-KEY)
                 press-fn)))
 ;; start is called by init and after code reloading finishes
+
 (defn ^:dev/after-load start []
   (capture-key
    {keycodes/J
@@ -119,11 +147,10 @@
   ;; so it is available even in :advanced release builds
   (rf/dispatch-sync [:initialize-db])
   (js/console.log "start")
-
-
   (start))
-; this is called before any code is reloaded
 
+
+; this is called before any code is reloaded
 
 (defn ^:dev/before-load stop []
   (js/console.log "stop"))
@@ -136,24 +163,27 @@
      (let [max-y (dec (count (first lawn)))
            max-x (dec (count lawn))
            [player-x player-y] player]
-       (doto
-           (assoc
-            db
-            :game/player
-            [(cond
-               (< max-x player-x) 0
-               (< player-x 0) max-x
-               :else player-x)
-             (cond
-               (< max-y player-y) 0
-               (< player-y 0) max-y
-               :else player-y)])
-         js/console.log)))))
+       (prn "wrap: " player)
+       (assoc
+        db
+        :game/player
+        [(cond
+           (< max-x player-x) 0
+           (< player-x 0) max-x
+           :else player-x)
+         (cond
+           (< max-y player-y) 0
+           (< player-y 0) max-y
+           :else player-y)])))))
 
+(def set-pieces-visited
+  (rf/enrich
+   (fn [db _]
+     (visit-pieces db))))
 
 (rf/reg-event-db
  :player/mv
- [wrap-player-on-board]
+ [set-pieces-visited wrap-player-on-board]
  (fn [db [_ direction]]
    (let [mv
          (fn [[x y]]
@@ -162,6 +192,18 @@
              :down [x (inc y)] :up [x (dec y)]))]
      (update db :game/player mv))))
 
+
+;; (rf/reg-event-db
+;;  :player/
+;;  [wrap-player-on-board]
+;;  (fn [db [_ direction]]
+;;    (let [mv
+;;          (fn [[x y]]
+;;            (case direction
+;;              :left [(dec x) y] :right [(inc x) y]
+;;              :down [x (inc y)] :up [x (dec y)]))]
+;;      (update db :game/player mv))))
+
 (comment
   (require '[re-frame.db])
   (rf/dispatch-sync [:initialize-db])
@@ -169,7 +211,9 @@
   (do (rf/dispatch-sync [:player/mv :left])
       (:game/player @re-frame.db/app-db))
   (do (rf/dispatch-sync [:player/mv :down])
-      (:game/player @re-frame.db/app-db))
+      @re-frame.db/app-db)
+  (do (rf/dispatch-sync [:player/mv :left])
+      @re-frame.db/app-db)
 
 
 
