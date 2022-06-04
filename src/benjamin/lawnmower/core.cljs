@@ -12,7 +12,6 @@
 (defn
   visit-pieces
   [{:game/keys [player] :as db}]
-  (prn "visit-pieces" player)
   (let [[y x] player]
     (update-in
      db
@@ -42,12 +41,14 @@
   (fn [_ _]
     init-db))
 
-(defn player-ui []
+
+(defn player-ui [pos]
   [:img
-   {:src "assets/4SfnQ1I.png"
-    :alt "foo"
+   {:src "4SfnQ1I.png"
+    :alt "../4SfnQ1I.png"
+    :key pos
     :style
-    {:height 100 :width 100}}])
+    {:height 50 :width 50}}])
 
 (defn
   piece-of-lawn
@@ -55,7 +56,7 @@
    player]
   (if
       (= pos player)
-      (player-ui)
+      (player-ui pos)
       [:div
        {:key pos
         :style {:height 100
@@ -73,6 +74,23 @@
       (doall (map #(piece-of-lawn % player) row)))
     lawn)))
 
+(defonce click-listener (atom nil))
+(defn mount-click []
+  (let [listener
+        (fn [ev]
+          (rf/dispatch
+           [::click [(.-clientX ev)
+                     (.-clientY ev)]]))]
+    (js/document.addEventListener "click" listener)
+    (reset! click-listener listener)))
+
+(defn
+  unmount
+  []
+  (js/document.removeEventListener
+   "click"
+   @click-listener))
+
 (comment
   (piece-of-lawn
    (ffirst (make-lawn [1 1])) [0 0])
@@ -89,8 +107,8 @@
       {:style
        {:display :grid
         :width 600
-        :grid-template-rows "repeat(3, 100px)"
-        :grid-template-columns "repeat(3, 100px)"
+        :grid-template-rows "repeat(3, 50px)"
+        :grid-template-columns "repeat(3, 50px)"
         :grid-auto-flow :column}}
       (lawn-grid lawn player)]]))
 
@@ -99,20 +117,25 @@
   [keycode-map]
   (let [key-handler (KeyHandler. js/document)
         press-fn (fn [key-press]
+                   (js/console.log (prn-str key-press))
                    (when-let [f (get keycode-map (.. key-press -keyCode))]
                      (f)))]
     (gev/listen key-handler
-                (-> KeyHandler .-EventType .-KEY)
+                (js/goog.object.get
+                 (js/goog.object.get KeyHandler "EventType")
+                 "KEY")
                 press-fn)))
+
 ;; start is called by init and after code reloading finishes
 
 (defn ^:dev/after-load start []
+  (mount-click)
   (capture-key
    {keycodes/J
-    (fn [] (js/console.log "hi1")
+    (fn []
       (rf/dispatch [:player/mv :down]))
     keycodes/DOWN
-    (fn [] (js/console.log "hi1")
+    (fn []
       (rf/dispatch [:player/mv :down]))
     keycodes/UP
     (fn []
@@ -136,6 +159,12 @@
    [game]
    (.getElementById js/document "lawnmovergame")))
 
+(rf/reg-event-fx
+ ::click
+ (fn
+   [cofx event]
+   {:dispatch
+    [:player/mv :down]}))
 
 (def wrap-player-on-board
   (rf/enrich
@@ -182,6 +211,7 @@
 
 ; this is called before any code is reloaded
 (defn ^:dev/before-load stop []
+  (unmount)
   (js/console.log "stop"))
 
 (comment
@@ -193,9 +223,7 @@
   (do (rf/dispatch-sync [:player/mv :down])
       @re-frame.db/app-db)
   (do (rf/dispatch-sync [:player/mv :left])
-      @re-frame.db/app-db)
-
-  )
+      @re-frame.db/app-db))
 
 ;; win screen
 ;; move by click
