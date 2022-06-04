@@ -19,6 +19,18 @@
      [:game/lawn y x :lawn-piece/visited?]
      (constantly true))))
 
+(defn
+  win?
+  [{:game/keys [lawn]}]
+  (->>
+   lawn
+   (sequence
+    (comp
+     cat
+     (remove :lawn-piece/visited?)))
+   seq
+   not))
+
 (defn make-lawn
   [[y x]]
   (into
@@ -35,6 +47,7 @@
 (def init-db
   (visit-pieces
    {:game/lawn (make-lawn lawn-dimensions)
+    :game/won? false
     :game/player [0 0]}))
 
 (rf/reg-event-db
@@ -42,6 +55,13 @@
   (fn [_ _]
     init-db))
 
+(defn win-screen []
+  [:h1
+   {:style {:color "red"}}
+   "You mowned the lawn!"
+   [:img
+    {:src "4SfnQ1I.png"
+     :alt "../4SfnQ1I.png"}]])
 
 (defn player-ui [pos]
   [:img
@@ -93,25 +113,53 @@
    @click-listener))
 
 (comment
+  (seq
+   (sequence
+    (comp
+     cat
+     (filter :visited?))
+    (make-lawn [1 1])))
+
   (piece-of-lawn
    (ffirst (make-lawn [1 1])) [0 0])
   (lawn-grid (make-lawn [3 3]) [0 0]))
 
 (rf/reg-sub :game/lawn :game/lawn)
+(rf/reg-sub :game/won? :game/won?)
 (rf/reg-sub :game/player :game/player)
+
+(defn
+  button
+  [txt evt]
+  [:div
+   {:style {:background "yellow"}
+    :on-click (fn
+                []
+                (rf/dispatch
+                 [:player/mv evt]))}
+   [:button txt]])
 
 (defn game []
   (let [lawn @(rf/subscribe [:game/lawn])
-        player @(rf/subscribe [:game/player])]
-    [:h1 "Mawn the lawn"
-     [:div
-      {:style
-       {:display :grid
-        :width 600
-        :grid-template-rows (str "repeat(3, " lawn-px "px)")
-        :grid-template-columns (str "repeat(3, " lawn-px "px)")
-        :grid-auto-flow :column}}
-      (lawn-grid lawn player)]]))
+        player @(rf/subscribe [:game/player])
+        won? @(rf/subscribe [:game/won?])]
+    (println won?)
+    (if
+        won?
+        [win-screen]
+        [:h1 "Mow the lawn"
+         [:div
+          {:style
+           {:display :grid
+            :width 600
+            :grid-template-rows (str "repeat(3, " lawn-px "px)")
+            :grid-template-columns (str "repeat(3, " lawn-px "px)")
+            :grid-auto-flow :column}}
+          (lawn-grid lawn player)]
+         [button "up" :up]
+         [button "down" :down]
+         [button "left" :left]
+         [button "right" :right]])))
 
 (defn capture-key
   "Given a `keycode`, execute function `f` "
@@ -122,15 +170,14 @@
                    (when-let [f (get keycode-map (.. key-press -keyCode))]
                      (f)))]
     (gev/listen key-handler
-                (js/goog.object.get
-                 (js/goog.object.get KeyHandler "EventType")
-                 "KEY")
+                "key"
+                ;; (-> KeyHandler .-EventType .-KEY)
                 press-fn)))
 
 ;; start is called by init and after code reloading finishes
 
 (defn ^:dev/after-load start []
-  (mount-click)
+  ;; (mount-click)
   (capture-key
    {keycodes/J
     (fn []
@@ -160,12 +207,12 @@
    [game]
    (.getElementById js/document "lawnmovergame")))
 
-(rf/reg-event-fx
- ::click
- (fn
-   [cofx event]
-   {:dispatch
-    [:player/mv :down]}))
+;; (rf/reg-event-fx
+;;  ::click
+;;  (fn
+;;    [cofx event]
+;;    {:dispatch
+;;     [:player/mv :down]}))
 
 (def wrap-player-on-board
   (rf/enrich
@@ -190,9 +237,14 @@
    (fn [db _]
      (visit-pieces db))))
 
+(def set-win?
+  (rf/enrich
+   (fn [db _]
+     (assoc db :game/won? (win? db)))))
+
 (rf/reg-event-db
  :player/mv
- [set-pieces-visited wrap-player-on-board]
+ [set-pieces-visited wrap-player-on-board set-win?]
  (fn [db [_ direction]]
    (let [mv
          (fn [[x y]]
@@ -217,6 +269,8 @@
 
 (comment
   (require '[re-frame.db])
+  (win? @re-frame.db/app-db)
+
   (rf/dispatch-sync [:initialize-db])
   (rf/dispatch-sync [:player/mv :down])
   (do (rf/dispatch-sync [:player/mv :left])
