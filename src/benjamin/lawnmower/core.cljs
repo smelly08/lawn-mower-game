@@ -9,8 +9,6 @@
 
 (def lawn-dimensions [3 3])
 
-(def mower-link "https://i.imgurcom/4SfnQ1I.jpeg")
-
 (defn
   visit-pieces
   [{:game/keys [player] :as db}]
@@ -46,12 +44,10 @@
 
 (defn player-ui []
   [:img
-   {:src "/assets/4SfnQ1I.png"
+   {:src "assets/4SfnQ1I.png"
     :alt "foo"
     :style
-    {:height 100 :width 100
-     ;; :clip "rect(0,100,100,100)"
-     :overflow "hidden"}}])
+    {:height 100 :width 100}}])
 
 (defn
   piece-of-lawn
@@ -140,21 +136,6 @@
    [game]
    (.getElementById js/document "lawnmovergame")))
 
-(defn init []
-  ;; init is called ONCE when the page loads
-  ;; this is called in the index.html and must be exported
-  ;; so it is available even in :advanced release builds
-  (rf/dispatch-sync [:initialize-db])
-  (js/console.log "start")
-  (start))
-
-
-; this is called before any code is reloaded
-
-(defn ^:dev/before-load stop []
-  (js/console.log "stop"))
-
-;; (defn mv-player  )
 
 (def wrap-player-on-board
   (rf/enrich
@@ -190,17 +171,18 @@
              :down [x (inc y)] :up [x (dec y)]))]
      (update db :game/player mv))))
 
+(defn init []
+  ;; init is called ONCE when the page loads
+  ;; this is called in the index.html and must be exported
+  ;; so it is available even in :advanced release builds
+  (rf/dispatch-sync [:initialize-db])
+  (js/console.log "start")
+  (start))
 
-;; (rf/reg-event-db
-;;  :player/
-;;  [wrap-player-on-board]
-;;  (fn [db [_ direction]]
-;;    (let [mv
-;;          (fn [[x y]]
-;;            (case direction
-;;              :left [(dec x) y] :right [(inc x) y]
-;;              :down [x (inc y)] :up [x (dec y)]))]
-;;      (update db :game/player mv))))
+
+; this is called before any code is reloaded
+(defn ^:dev/before-load stop []
+  (js/console.log "stop"))
 
 (comment
   (require '[re-frame.db])
@@ -213,6 +195,7 @@
   (do (rf/dispatch-sync [:player/mv :left])
       @re-frame.db/app-db)
 
-
-
   )
+
+;; win screen
+;; move by click
