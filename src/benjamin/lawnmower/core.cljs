@@ -1,11 +1,36 @@
-(ns benjamin.lawnmower.core)
+(ns
+    benjamin.lawnmower.core
+    (:require
+     [reagent.dom :as rdom]
+     [re-frame.core :as rf]))
 
+(def lawn-size 3)
+
+(defn piece-of-lawn [id]
+  [:div
+   {:key id
+    :style
+    {:height 100
+     :width 100
+     :background "green"}}])
 
 ;; start is called by init and after code reloading finishes
 (defn ^:dev/after-load start []
-  (faces/mount)
   (rdom/render
-   [:h1 "hurr"]
+   [:h1 "Mawn the lawn"
+    [:div
+     {:style
+      {:display
+       :grid
+       :width 600
+       :grid-template-rows "repeat(3, 100px)"
+       :grid-template-columns "repeat(6, 100px)"
+       :grid-auto-flow :column
+       }}
+
+     (doall (for [x (range lawn-size)
+                  y (range lawn-size)]
+              (piece-of-lawn [x y])))]]
    (.getElementById js/document "lawnmovergame")))
 
 (defn init []
@@ -18,5 +43,4 @@
 
 ; this is called before any code is reloaded
 (defn ^:dev/before-load stop []
-  (faces/unmount)
   (js/console.log "stop"))
