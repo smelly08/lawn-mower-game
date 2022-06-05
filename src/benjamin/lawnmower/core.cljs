@@ -207,12 +207,6 @@
    [game]
    (.getElementById js/document "lawnmovergame")))
 
-;; (rf/reg-event-fx
-;;  ::click
-;;  (fn
-;;    [cofx event]
-;;    {:dispatch
-;;     [:player/mv :down]}))
 
 (def wrap-player-on-board
   (rf/enrich
@@ -240,6 +234,7 @@
 (def set-win?
   (rf/enrich
    (fn [db _]
+     (println "set win?" (win? db))
      (assoc db :game/won? (win? db)))))
 
 (rf/reg-event-db
