@@ -8,7 +8,7 @@
     (:import [goog.events KeyHandler]))
 
 (def lawn-dimensions [3 3])
-(def lawn-px 50)
+(def lawn-px 10)
 
 (defn
   visit-pieces
@@ -59,17 +59,19 @@
   [:h1
    {:style {:color "red"}}
    "You mowned the lawn!"
-   [:img
-    {:src "4SfnQ1I.png"
-     :alt "../4SfnQ1I.png"}]])
+   [:div
+    {:style {:width "15rem" :height "15rem"}}
+    [:img
+     {:src
+      "https://clipartmag.com/images/lawn-mower-cartoon-pictures-7.jpg"}]]])
 
 (defn player-ui [pos]
   [:img
-   {:src "4SfnQ1I.png"
-    :alt "../4SfnQ1I.png"
+   {:src "https://clipartmag.com/images/lawn-mower-cartoon-pictures-7.jpg"
     :key pos
-    :style
-    {:height lawn-px :width lawn-px}}])
+    ;; :style
+    ;; {:height lawn-px :width lawn-px}
+    }])
 
 (defn
   piece-of-lawn
@@ -80,9 +82,7 @@
       (player-ui pos)
       [:div
        {:key pos
-        :style {:height lawn-px
-                :width lawn-px
-                :background (if
+        :style {:background (if
                                 visited?
                                 "yellowgreen"
                                 "green")}}]))
@@ -150,10 +150,11 @@
         [:h1 "Mow the lawn"
          [:div
           {:style
-           {:display :grid
-            :width 600
-            :grid-template-rows (str "repeat(3, " lawn-px "px)")
-            :grid-template-columns (str "repeat(3, " lawn-px "px)")
+           {:width "12rem"
+            :height "12rem"
+            :display :grid
+            :grid-template-rows (str "repeat(3, " 3 "rem)")
+            :grid-template-columns (str "repeat(3, " 3 "rem)")
             :grid-auto-flow :column}}
           (lawn-grid lawn player)]
          [button "up" :up]
@@ -178,6 +179,7 @@
 
 (defn ^:dev/after-load start []
   ;; (mount-click)
+  ;; (gev/)
   (capture-key
    {keycodes/J
     (fn []
@@ -224,6 +226,7 @@
          (cond
            (< max-y player-y) 0
            (< player-y 0) max-y
+           (< max-x player-x) (min max-y (inc player-y))
            :else player-y)])))))
 
 (def set-pieces-visited
@@ -273,7 +276,10 @@
   (do (rf/dispatch-sync [:player/mv :down])
       @re-frame.db/app-db)
   (do (rf/dispatch-sync [:player/mv :left])
-      @re-frame.db/app-db))
+      @re-frame.db/app-db)
+
+  (reset! re-frame.db/app-db init-db)
+  )
 
 ;; win screen
 ;; move by click
