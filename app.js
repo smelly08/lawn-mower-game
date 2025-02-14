@@ -1,3 +1,4 @@
+
 window.onload = setup;
 
 var width = 500;
@@ -10,12 +11,9 @@ var canvas;
 var ctx;
 
 var fields = [];
-
 var nextMulch = 0;
-var tileSizes = [50,25,20,10,5,4,2,1];
-
+var tileSizes = [50, 25, 20, 10, 5, 4, 2, 1];
 var maxGrowth = 15;
-
 var mulch = 0;
 
 var activeField;
@@ -25,11 +23,9 @@ var currentPosition = 0;
 var unlockedFields = 1;
 
 var growthBasePrice = 10;
-
 var speedBasePrice = 50;
 var sizeBasePrice = 75;
 var tileBasePrice = 150;
-
 var tickBasePrice = 5;
 
 var growthRateMultiplier = 1.2;
@@ -38,6 +34,72 @@ var mowerRateMultiplier = 2.5;
 var mowerSizeMultiplier = 1.5;
 var tileSizeMultiplier = 3.5;
 var currentlyPrestiging = false;
+
+// Function to save game state
+function saveGame() {
+    const saveData = {
+        money: money,
+        totalMoney: totalMoney,
+        mulch: mulch,
+        currentPosition: currentPosition,
+        unlockedFields: unlockedFields,
+        upgrades: activeField.upgrades.map(upgrade => ({
+            name: upgrade.name,
+            price: upgrade.price,
+            machineSpeed: activeField.machineSpeed,
+            machineWidth: activeField.machineWidth,
+            machineHeight: activeField.machineHeight,
+            tileSize: activeField.tileSize,
+            growthAmount: activeField.growthAmount,
+            tickRate: activeField.tickRate
+        }))
+    };
+    localStorage.setItem('saveData', JSON.stringify(saveData));
+}
+
+// Function to load game state
+function loadGame() {
+    const saveData = JSON.parse(localStorage.getItem('saveData'));
+    if (saveData) {
+        money = saveData.money;
+        totalMoney = saveData.totalMoney;
+        mulch = saveData.mulch;
+        currentPosition = saveData.currentPosition;
+        unlockedFields = saveData.unlockedFields;
+
+        // Retrieve upgrades for active field
+        for (let i = 0; i < saveData.upgrades.length; i++) {
+            const upgradeData = saveData.upgrades[i];
+            const upgrade = getUpgrade(activeField, upgradeData.name);
+            upgrade.price = upgradeData.price; // Restore upgrade price
+            activeField.machineSpeed = upgradeData.machineSpeed;
+            activeField.machineWidth = upgradeData.machineWidth;
+            activeField.machineHeight = upgradeData.machineHeight;
+            activeField.tileSize = upgradeData.tileSize;
+            activeField.growthAmount = upgradeData.growthAmount;
+            activeField.tickRate = upgradeData.tickRate;
+        }
+    }
+}
+
+// Call loadGame on setup
+function setup() {
+    canvas = document.getElementById("lawn");
+    ctx = canvas.getContext('2d');
+
+    addFields();
+    loadGame(); // Load saved game if it exists
+    activeField = fields[currentPosition];
+    activeField.generateField();
+    ctx.fillStyle = "green";
+    tick(activeField);
+    updateText(activeField);
+    setInterval(updatePrestigeValues, 500);
+
+    // Automatically save every 10 seconds
+    setInterval(saveGame, 10000);
+    window.addEventListener('beforeunload', saveGame);
+}
 
 function Area(name, multiplierBuff, initialBuff, baseColor, grownColor, machineColor, unlockPrice, message, value, machineName, hmm){
     
@@ -322,20 +384,6 @@ function addFields(){
     fields.push(new Area("Diamond", 0.85, 50000, [124, 124, 124], [124, 239, 228], "rgb(221, 206, 193)", 1000000000000, "Total Diamonds Mined: ", 2000, "Iron Pickaxe", "Ok - last one I swear."));
     fields.push(new Area("Gold", 0.95, 100000, [138, 202, 216], [211, 176, 0], "rgb(143, 158, 139)", 10000000000000, "Total Gold Panned: ", 5000, "Pan", "There's no rush ;)"));
     fields.push(new Area("People", 0.65, 5000, [255, 67, 50], [255, 211, 168], "rgb(100, 100, 100)", 100000000000000, "Total People Killed: ", 10000, "Terminator", "I'll be back"));
-}
-
-function setup(){
-    canvas = document.getElementById("lawn");
-    ctx = canvas.getContext('2d');
-    
-    addFields();
-    activeField = fields[0];
-    activeField.generateField();
-    ctx.fillStyle = "green";
-    tick(activeField);
-    updateText(activeField);
-    setInterval(updatePrestigeValues, 500);
-    
 }
 
 function updatePrestigeValues(){
