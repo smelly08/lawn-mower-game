@@ -379,12 +379,12 @@ function saveGame() {
         activeField: activeField.name,
         fields: fields
     };
-    localStorage.setItem('gameData', JSON.stringify(gameData));
+    localStorage.setItem('lawnmowerGameData', JSON.stringify(gameData));
     console.log("Game saved! 💾");
 }
 
 function loadGame() {
-    const gameDataString = localStorage.getItem('gameData');
+    const gameDataString = localStorage.getItem('lawnmowerGameData');
     if (gameDataString) {
         const gameData = JSON.parse(gameDataString);
         money = gameData.money;
