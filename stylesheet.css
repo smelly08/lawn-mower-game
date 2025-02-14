@@ -1,0 +1,59 @@
+#lawn {
+    border: solid;
+    border-width: 3px;
+    margin: auto;
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+body {
+    user-select: none;
+}
+#desc {
+    position:fixed;
+    bottom:0;
+    right:10px;
+}
+
+#prestige {
+    position:fixed;
+    bottom: 0;
+}
+
+#superTicks {
+    position: fixed;
+    right:0;
+    top:0;
+}
+
+button {
+    background: #aaa;
+    border: none;
+    padding: 3.5px 6px;
+    transition-duration: 0.2s;
+    font-family: Silkscreen;
+}
+button:hover {
+    background-color: #d8d8d8;
+}
+button:active {
+    background-color: #cecece;
+}
+
+.prestige {
+    border: 2px solid #ca9510;
+    padding: 3.5px 6px;
+    border-radius: 2px;
+    background-color: #daa520;
+    transition-duration: 0.2s;
+    font-family: Silkscreen;
+}
+.prestige:hover {
+    background-color: #eab540;
+}
+.prestige:active {
+    background-color: #ca9510;
+}
