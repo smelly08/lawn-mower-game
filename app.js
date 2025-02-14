@@ -320,6 +320,8 @@ function setup() {
     tick(activeField);
     updateText(activeField);
     setInterval(updatePrestigeValues, 500);
+
+    document.getElementById("saveButton").addEventListener("click", saveGame);
 }
 
 function updatePrestigeValues() {
@@ -421,3 +423,5 @@ function loadGame() {
         console.log("No saved game found. 📂");
     }
 }
+
+setInterval(saveGame, 10000);
