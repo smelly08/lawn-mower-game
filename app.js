@@ -311,6 +311,8 @@ function setup() {
     canvas = document.getElementById("lawn");
     ctx = canvas.getContext('2d');
 
+    loadGame();
+
     addFields();
     activeField = fields[0];
     activeField.generateField();
